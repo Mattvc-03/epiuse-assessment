@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { useToast } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/react'; 
 import {
   FormControl,
   FormLabel,
@@ -9,11 +9,11 @@ import {
   Button,
   Box,
   Stack,
-  Select,
+  Select, // Added for dropdown
 } from '@chakra-ui/react';
 
 const EmployeeForm = () => {
-  const { id } = useParams();
+  const { id } = useParams(); 
   const toast = useToast();
   const [formData, setFormData] = useState({
     name: '',
@@ -24,25 +24,32 @@ const EmployeeForm = () => {
     manager_id: '',
     email: '',
   });
-  const [employees, setEmployees] = useState([]);
+  const [managers, setManagers] = useState([]); // State to hold manager options
 
   useEffect(() => {
-    fetchEmployees();
+    fetchManagers(); // Fetch all managers for dropdown
     if (id) {
       fetchEmployeeDetails();
     }
   }, [id]);
 
-  const fetchEmployees = async () => {
+  const fetchManagers = async () => {
     try {
       const baseURL = process.env.NODE_ENV === 'production'
         ? 'https://epiuse-assessment.vercel.app/api/employees'
         : 'http://localhost:5000/api/employees';
 
       const { data } = await axios.get(baseURL);
-      setEmployees(data);
+      setManagers(data); // Set the list of employees for the dropdown
     } catch (error) {
-      console.log('Error fetching employees', error);
+      console.log('Error fetching managers', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch managers',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
@@ -185,13 +192,13 @@ const EmployeeForm = () => {
             <FormLabel>Manager</FormLabel>
             <Select
               name="manager_id"
-              value={formData.manager_id || ''}
+              value={formData.manager_id}
               onChange={handleChange}
             >
               <option value="">None</option>
-              {employees.map((employee) => (
-                <option key={employee.id} value={employee.id}>
-                  {employee.name} {employee.surname}
+              {managers.map(manager => (
+                <option key={manager.id} value={manager.id}>
+                  {manager.name} {manager.surname}
                 </option>
               ))}
             </Select>

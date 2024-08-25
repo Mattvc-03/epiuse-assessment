@@ -58,8 +58,6 @@ app.get('/api/employees/:id', async (req, res) => {
   }
 });
 
-
-
 // Add a new employee
 app.post('/api/employees', async (req, res) => {
   const { name, surname, email, role, manager_id, birth_date, salary } = req.body;

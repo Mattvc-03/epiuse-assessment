@@ -3,12 +3,12 @@ import { Box, Button, Flex, Heading, Stack, Text, Badge, Divider, Input, InputGr
 import { Link } from 'react-router-dom';
 import { SearchIcon } from '@chakra-ui/icons';
 import axios from 'axios';
-import { useToast } from '@chakra-ui/react'; // Initialize useToast inside the component
+import { useToast } from '@chakra-ui/react'; 
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(''); // State for search query
-  const toast = useToast(); // Initialize toast inside the component
+  const [searchQuery, setSearchQuery] = useState('');
+  const toast = useToast();
 
   useEffect(() => {
     fetchEmployees();
@@ -17,8 +17,8 @@ const EmployeeList = () => {
   const fetchEmployees = async () => {
     try {
       const baseURL = process.env.NODE_ENV === 'production' 
-        ? 'https://epiuse-assessment.vercel.app/api/employees' // Your deployed Vercel URL
-        : 'http://localhost:5000/api/employees'; // Local development URL
+        ? 'https://epiuse-assessment.vercel.app/api/employees'
+        : 'http://localhost:5000/api/employees';
 
       const { data } = await axios.get(baseURL);
       setEmployees(data);
