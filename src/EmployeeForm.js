@@ -1,54 +1,158 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Replace useHistory with useNavigate
-import { supabase } from './supabase';
-import { Box, Input, Button, FormLabel, Heading, Stack } from '@chakra-ui/react';
+import { supabase } from './supabase'; // Make sure the path is correct for your project
+import { useToast } from '@chakra-ui/react';
+import {
+  FormControl,
+  FormLabel,
+  Input,
+  Button,
+  Box,
+  Stack,
+} from '@chakra-ui/react';
 
-const EmployeeForm = ({ employee }) => {
-  const [name, setName] = useState(employee ? employee.name : '');
-  const [surname, setSurname] = useState(employee ? employee.surname : '');
-  const [email, setEmail] = useState(employee ? employee.email : '');
-  const [role, setRole] = useState(employee ? employee.role : '');
-  const [salary, setSalary] = useState(employee ? employee.salary : '');
+const EmployeeForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    surname: '',
+    birth_date: '',
+    salary: '',
+    role: '',
+    manager_id: '',
+    email: '',
+  });
 
-  const navigate = useNavigate(); // Replace useHistory with useNavigate
+  const toast = useToast();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (employee) {
-      await supabase.from('employees').update({ name, surname, email, role, salary }).eq('id', employee.id);
-    } else {
-      await supabase.from('employees').insert([{ name, surname, email, role, salary }]);
+
+    try {
+      const { data, error } = await supabase.from('employees').insert([
+        {
+          name: formData.name,
+          surname: formData.surname,
+          birth_date: formData.birth_date,
+          salary: parseFloat(formData.salary),
+          role: formData.role,
+          manager_id: formData.manager_id ? parseInt(formData.manager_id) : null,
+          email: formData.email,
+        },
+      ]);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: 'Employee added.',
+        description: `Employee ${formData.name} ${formData.surname} has been added successfully.`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+
+      // Clear the form
+      setFormData({
+        name: '',
+        surname: '',
+        birth_date: '',
+        salary: '',
+        role: '',
+        manager_id: '',
+        email: '',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: `Failed to add employee: ${error.message}`,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
-    navigate('/'); // Replace history.push('/') with navigate('/')
   };
 
   return (
-    <Box p={5}>
-      <Heading>{employee ? 'Edit Employee' : 'Add Employee'}</Heading>
+    <Box width="400px" mx="auto" mt={10}>
       <form onSubmit={handleSubmit}>
-        <Stack spacing={3}>
-          <Box>
+        <Stack spacing={4}>
+          <FormControl id="name" isRequired>
             <FormLabel>Name</FormLabel>
-            <Input value={name} onChange={(e) => setName(e.target.value)} />
-          </Box>
-          <Box>
+            <Input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <FormControl id="surname" isRequired>
             <FormLabel>Surname</FormLabel>
-            <Input value={surname} onChange={(e) => setSurname(e.target.value)} />
-          </Box>
-          <Box>
-            <FormLabel>Email</FormLabel>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} />
-          </Box>
-          <Box>
-            <FormLabel>Role</FormLabel>
-            <Input value={role} onChange={(e) => setRole(e.target.value)} />
-          </Box>
-          <Box>
+            <Input
+              type="text"
+              name="surname"
+              value={formData.surname}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <FormControl id="birth_date" isRequired>
+            <FormLabel>Birth Date</FormLabel>
+            <Input
+              type="date"
+              name="birth_date"
+              value={formData.birth_date}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <FormControl id="salary" isRequired>
             <FormLabel>Salary</FormLabel>
-            <Input type="number" value={salary} onChange={(e) => setSalary(e.target.value)} />
-          </Box>
-          <Button colorScheme="blue" type="submit">
-            {employee ? 'Update' : 'Create'}
+            <Input
+              type="number"
+              name="salary"
+              value={formData.salary}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <FormControl id="role" isRequired>
+            <FormLabel>Role</FormLabel>
+            <Input
+              type="text"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <FormControl id="manager_id">
+            <FormLabel>Manager ID</FormLabel>
+            <Input
+              type="number"
+              name="manager_id"
+              value={formData.manager_id}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <FormControl id="email" isRequired>
+            <FormLabel>Email</FormLabel>
+            <Input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </FormControl>
+
+          <Button type="submit" colorScheme="teal" size="lg">
+            Add Employee
           </Button>
         </Stack>
       </form>
