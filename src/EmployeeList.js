@@ -12,7 +12,12 @@ const EmployeeList = () => {
 
   const fetchEmployees = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/employees');
+      // Determine the base URL dynamically based on the environment
+      const baseURL = process.env.NODE_ENV === 'production' 
+        ? 'https://epiuse-assessment.vercel.app/api/employees' // Your deployed Vercel URL
+        : 'http://localhost:5000/api/employees'; // Local development URL
+
+      const { data } = await axios.get(baseURL);
       setEmployees(data);
     } catch (error) {
       console.log('Error fetching employees', error);
@@ -21,7 +26,11 @@ const EmployeeList = () => {
 
   const deleteEmployee = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/employees/${id}`);
+      const baseURL = process.env.NODE_ENV === 'production' 
+        ? `https://epiuse-assessment.vercel.app/api/employees/${id}`
+        : `http://localhost:5000/api/employees/${id}`;
+
+      await axios.delete(baseURL);
       setEmployees(employees.filter((employee) => employee.id !== id));
     } catch (error) {
       console.log('Error deleting employee', error);

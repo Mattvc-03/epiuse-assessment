@@ -11,7 +11,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://employeedata-zn4v.onrender.com'],
+  origin: ['http://localhost:3000', 'https://epiuse-assessment.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type'],
 };
