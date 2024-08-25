@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom'; // to get the employee ID from the URL
-import { useToast } from '@chakra-ui/react'; // Import useToast from Chakra UI
+import { useParams } from 'react-router-dom';
+import { useToast } from '@chakra-ui/react';
 import {
   FormControl,
   FormLabel,
@@ -9,11 +9,12 @@ import {
   Button,
   Box,
   Stack,
+  Select,
 } from '@chakra-ui/react';
 
 const EmployeeForm = () => {
-  const { id } = useParams(); // Get employee ID from URL
-  const toast = useToast(); // Initialize toast
+  const { id } = useParams();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
@@ -23,12 +24,27 @@ const EmployeeForm = () => {
     manager_id: '',
     email: '',
   });
+  const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
+    fetchEmployees();
     if (id) {
       fetchEmployeeDetails();
     }
   }, [id]);
+
+  const fetchEmployees = async () => {
+    try {
+      const baseURL = process.env.NODE_ENV === 'production'
+        ? 'https://epiuse-assessment.vercel.app/api/employees'
+        : 'http://localhost:5000/api/employees';
+
+      const { data } = await axios.get(baseURL);
+      setEmployees(data);
+    } catch (error) {
+      console.log('Error fetching employees', error);
+    }
+  };
 
   const fetchEmployeeDetails = async () => {
     try {
@@ -72,7 +88,6 @@ const EmployeeForm = () => {
         : `http://localhost:5000/api/employees/${id}`;
 
       if (id) {
-        // Update existing employee
         await axios.put(baseURL, formData);
         toast({
           title: 'Employee updated.',
@@ -82,7 +97,6 @@ const EmployeeForm = () => {
           isClosable: true,
         });
       } else {
-        // Add new employee
         await axios.post(baseURL.replace(`/${id}`, ''), formData);
         toast({
           title: 'Employee added.',
@@ -93,7 +107,6 @@ const EmployeeForm = () => {
         });
       }
 
-      // Clear the form
       setFormData({
         name: '',
         surname: '',
@@ -169,13 +182,19 @@ const EmployeeForm = () => {
           </FormControl>
 
           <FormControl id="manager_id">
-            <FormLabel>Manager ID</FormLabel>
-            <Input
-              type="number"
+            <FormLabel>Manager</FormLabel>
+            <Select
               name="manager_id"
               value={formData.manager_id || ''}
               onChange={handleChange}
-            />
+            >
+              <option value="">None</option>
+              {employees.map((employee) => (
+                <option key={employee.id} value={employee.id}>
+                  {employee.name} {employee.surname}
+                </option>
+              ))}
+            </Select>
           </FormControl>
 
           <FormControl id="email" isRequired>
