@@ -59,17 +59,20 @@ app.get('/api/employees/:id', async (req, res) => {
 // Add a new employee
 app.post('/api/employees', async (req, res) => {
   const { name, surname, email, role, manager_id, birth_date, salary } = req.body;
+
   try {
+    console.log('Adding employee with data:', req.body); // Debug log
     const { data, error } = await supabase
       .from('employees')
-      .insert([{ name, surname, email, role, manager_id, birth_date, salary }]); // No 'id' field here
+      .insert([{ name, surname, email, role, manager_id: manager_id || null, birth_date, salary }]);
 
     if (error) {
+      console.error('Error adding employee:', error); // Log error
       return res.status(500).json({ error: error.message });
     }
     res.status(201).json(data);
   } catch (err) {
-    console.error('Unexpected error:', err);
+    console.error('Unexpected error:', err); // Log unexpected errors
     res.status(500).json({ error: 'Unexpected error occurred' });
   }
 });
@@ -80,17 +83,19 @@ app.put('/api/employees/:id', async (req, res) => {
   const { name, surname, email, role, manager_id, birth_date, salary } = req.body;
 
   try {
+    console.log('Updating employee with ID:', id, 'with data:', req.body); // Debug log
     const { data, error } = await supabase
       .from('employees')
-      .update({ name, surname, email, role, manager_id, birth_date, salary })
+      .update({ name, surname, email, role, manager_id: manager_id || null, birth_date, salary })
       .eq('id', id);
 
     if (error) {
+      console.error('Error updating employee:', error); // Log error
       return res.status(500).json({ error: error.message });
     }
     res.status(200).json(data);
   } catch (err) {
-    console.error('Unexpected error:', err);
+    console.error('Unexpected error:', err); // Log unexpected errors
     res.status(500).json({ error: 'Unexpected error occurred' });
   }
 });
@@ -100,14 +105,16 @@ app.delete('/api/employees/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
+    console.log('Deleting employee with ID:', id); // Debug log
     const { error } = await supabase.from('employees').delete().eq('id', id);
 
     if (error) {
+      console.error('Error deleting employee:', error); // Log error
       return res.status(500).json({ error: error.message });
     }
     res.status(204).send();
   } catch (err) {
-    console.error('Unexpected error:', err);
+    console.error('Unexpected error:', err); // Log unexpected errors
     res.status(500).json({ error: 'Unexpected error occurred' });
   }
 });
