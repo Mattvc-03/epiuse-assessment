@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Flex, Heading, Stack, Text, Badge, Divider, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Stack, Text, Badge, Divider, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { SearchIcon } from '@chakra-ui/icons';
+import axios from 'axios';
+import { useToast } from '@chakra-ui/react'; // Initialize useToast inside the component
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const toast = useToast(); // Initialize toast inside the component
 
   useEffect(() => {
     fetchEmployees();
@@ -14,31 +16,53 @@ const EmployeeList = () => {
 
   const fetchEmployees = async () => {
     try {
-      const baseURL = process.env.NODE_ENV === 'production'
-        ? 'https://epiuse-assessment.vercel.app/api/employees' 
-        : 'http://localhost:5000/api/employees'; 
+      const baseURL = process.env.NODE_ENV === 'production' 
+        ? 'https://epiuse-assessment.vercel.app/api/employees' // Your deployed Vercel URL
+        : 'http://localhost:5000/api/employees'; // Local development URL
 
       const { data } = await axios.get(baseURL);
       setEmployees(data);
     } catch (error) {
       console.log('Error fetching employees', error);
+      toast({
+        title: 'Error fetching employees',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
   const deleteEmployee = async (id) => {
     try {
-      const baseURL = process.env.NODE_ENV === 'production'
+      const baseURL = process.env.NODE_ENV === 'production' 
         ? `https://epiuse-assessment.vercel.app/api/employees/${id}`
         : `http://localhost:5000/api/employees/${id}`;
 
       await axios.delete(baseURL);
       setEmployees(employees.filter((employee) => employee.id !== id));
+
+      toast({
+        title: 'Employee deleted',
+        description: `Employee with ID ${id} has been deleted successfully.`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (error) {
       console.log('Error deleting employee', error);
+      toast({
+        title: 'Error deleting employee',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
-  const filteredEmployees = employees.filter(employee =>
+  const filteredEmployees = employees.filter(employee => 
     employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     employee.surname.toLowerCase().includes(searchQuery.toLowerCase()) ||
     employee.role.toLowerCase().includes(searchQuery.toLowerCase())
@@ -53,14 +77,15 @@ const EmployeeList = () => {
         </Button>
       </Flex>
       <InputGroup mb={5}>
-        <Input
-          placeholder="Search employees"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+        <InputLeftElement pointerEvents="none">
+          <SearchIcon color="gray.300" />
+        </InputLeftElement>
+        <Input 
+          type="text" 
+          placeholder="Search employees..." 
+          value={searchQuery} 
+          onChange={(e) => setSearchQuery(e.target.value)} 
         />
-        <InputRightElement>
-          <SearchIcon color="gray.500" />
-        </InputRightElement>
       </InputGroup>
       <Divider mb={5} />
       <Stack spacing={4}>
