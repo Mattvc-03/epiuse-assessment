@@ -1,74 +1,71 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useToast, Box, Stack, FormControl, FormLabel, Input, Button, Select } from '@chakra-ui/react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import { useToast } from '@chakra-ui/react';
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-  Box,
-  Stack,
-  Select,
-} from '@chakra-ui/react';
 
 const EmployeeForm = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const toast = useToast();
+  
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
     birth_date: '',
     salary: '',
     role: '',
-    manager_id: '',
+    manager_id: null,  // Set initial value to null
     email: '',
   });
 
   const [managers, setManagers] = useState([]);
-  const { id } = useParams();
-  const toast = useToast();
-
-  useEffect(() => {
-    // Fetch the managers for the dropdown
-    const fetchManagers = async () => {
-      try {
-        const baseURL = process.env.NODE_ENV === 'production' 
-          ? 'https://epiuse-assessment.vercel.app/api/employees' // Your deployed Vercel URL
-          : 'http://localhost:5000/api/employees'; // Local development URL
-
-        const { data } = await axios.get(baseURL);
-        setManagers(data);
-      } catch (error) {
-        console.log('Error fetching managers', error);
-      }
-    };
-
-    fetchManagers();
-  }, []);
 
   useEffect(() => {
     if (id) {
       fetchEmployeeDetails(id);
     }
+    fetchManagers();
   }, [id]);
 
-  const fetchEmployeeDetails = async (employeeId) => {
+  const fetchEmployeeDetails = async (id) => {
     try {
-      const baseURL = process.env.NODE_ENV === 'production' 
-        ? `https://epiuse-assessment.vercel.app/api/employees/${employeeId}`
-        : `http://localhost:5000/api/employees/${employeeId}`;
+      const baseURL = process.env.NODE_ENV === 'production'
+        ? `https://epiuse-assessment.vercel.app/api/employees/${id}`
+        : `http://localhost:5000/api/employees/${id}`;
 
-      const response = await axios.get(baseURL);
-
-      if (response.data) {
-        setFormData(response.data);
-      } else {
-        console.error("Employee data is undefined.");
-      }
+      const { data } = await axios.get(baseURL);
+      setFormData({
+        name: data.name,
+        surname: data.surname,
+        birth_date: data.birth_date,
+        salary: data.salary,
+        role: data.role,
+        manager_id: data.manager_id || null,  // Use null if no manager
+        email: data.email,
+      });
     } catch (error) {
-      console.error('Error fetching employee details', error);
       toast({
         title: 'Error',
-        description: 'Failed to fetch employee details',
+        description: `Failed to fetch employee details: ${error.message}`,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const fetchManagers = async () => {
+    try {
+      const baseURL = process.env.NODE_ENV === 'production'
+        ? 'https://epiuse-assessment.vercel.app/api/employees'
+        : 'http://localhost:5000/api/employees';
+
+      const { data } = await axios.get(baseURL);
+      setManagers(data);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: `Failed to fetch managers: ${error.message}`,
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -81,50 +78,63 @@ const EmployeeForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleManagerChange = (e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, manager_id: value ? parseInt(value) : null });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
-      const baseURL = process.env.NODE_ENV === 'production' 
-        ? `https://epiuse-assessment.vercel.app/api/employees/${id || ''}`
-        : `http://localhost:5000/api/employees/${id || ''}`;
-
-      if (id) {
-        // Update employee
-        await axios.put(baseURL, formData);
-      } else {
-        // Add new employee
-        await axios.post(baseURL, formData);
-      }
-
+      const baseURL = process.env.NODE_ENV === 'production'
+        ? 'https://epiuse-assessment.vercel.app/api/employees'
+        : 'http://localhost:5000/api/employees';
+  
+      const response = id 
+        ? await axios.put(`${baseURL}/${id}`, formData)
+        : await axios.post(baseURL, { 
+            name: formData.name,
+            surname: formData.surname,
+            birth_date: formData.birth_date,
+            salary: formData.salary,
+            role: formData.role,
+            manager_id: formData.manager_id || null,
+            email: formData.email,
+          });  // Insert new record without 'id'
+  
       toast({
-        title: id ? 'Employee updated.' : 'Employee added.',
+        title: `Employee ${id ? 'updated' : 'added'}.`,
         description: `Employee ${formData.name} ${formData.surname} has been ${id ? 'updated' : 'added'} successfully.`,
         status: 'success',
         duration: 5000,
         isClosable: true,
       });
-
-      // Clear the form after submission
+  
+      // Reset form
       setFormData({
         name: '',
         surname: '',
         birth_date: '',
         salary: '',
         role: '',
-        manager_id: '',
+        manager_id: null,
         email: '',
       });
+  
+      navigate('/employee-list');
     } catch (error) {
+      console.error("Error adding/updating employee: ", error.response.data);
       toast({
         title: 'Error',
-        description: `Failed to ${id ? 'update' : 'add'} employee: ${error.message}`,
+        description: `Failed to ${id ? 'update' : 'add'} employee: ${error.response.data.error || error.message}`,
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
     }
   };
+  
 
   return (
     <Box width="400px" mx="auto" mt={10}>
@@ -183,12 +193,12 @@ const EmployeeForm = () => {
           <FormControl id="manager_id">
             <FormLabel>Manager</FormLabel>
             <Select
-              placeholder="Select manager"
               name="manager_id"
-              value={formData.manager_id}
-              onChange={handleChange}
+              value={formData.manager_id || ''}
+              onChange={handleManagerChange}
             >
-              {managers.map(manager => (
+              <option value="">None</option>
+              {managers.map((manager) => (
                 <option key={manager.id} value={manager.id}>
                   {manager.name} {manager.surname}
                 </option>
@@ -207,7 +217,7 @@ const EmployeeForm = () => {
           </FormControl>
 
           <Button type="submit" colorScheme="teal" size="lg">
-            {id ? 'Update Employee' : 'Add Employee'}
+            {id ? 'Update' : 'Add'} Employee
           </Button>
         </Stack>
       </form>

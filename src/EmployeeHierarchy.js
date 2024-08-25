@@ -79,6 +79,7 @@ const EmployeeHierarchy = () => {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              color: 'white' // Set text color to white
             }}
           >
             <Gravatar 

@@ -58,11 +58,11 @@ app.get('/api/employees/:id', async (req, res) => {
 
 // Add a new employee
 app.post('/api/employees', async (req, res) => {
-  const { name, surname, email, role, manager_id } = req.body;
+  const { name, surname, email, role, manager_id, birth_date, salary } = req.body;
   try {
     const { data, error } = await supabase
       .from('employees')
-      .insert([{ name, surname, email, role, manager_id }]);
+      .insert([{ name, surname, email, role, manager_id, birth_date, salary }]); // No 'id' field here
 
     if (error) {
       return res.status(500).json({ error: error.message });
@@ -77,12 +77,12 @@ app.post('/api/employees', async (req, res) => {
 // Update an employee
 app.put('/api/employees/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, surname, email, role, manager_id } = req.body;
+  const { name, surname, email, role, manager_id, birth_date, salary } = req.body;
 
   try {
     const { data, error } = await supabase
       .from('employees')
-      .update({ name, surname, email, role, manager_id })
+      .update({ name, surname, email, role, manager_id, birth_date, salary })
       .eq('id', id);
 
     if (error) {
