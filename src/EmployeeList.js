@@ -1,27 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Flex, Heading, Stack, Text, Badge, Divider, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Stack, Text, Badge, Divider, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { SearchIcon } from '@chakra-ui/icons'; // Ensure this import is correct
+import { SearchIcon } from '@chakra-ui/icons';
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
 
   useEffect(() => {
     fetchEmployees();
   }, []);
 
-  useEffect(() => {
-    filterEmployees();
-  }, [searchQuery, employees]);
-
   const fetchEmployees = async () => {
     try {
-      const baseURL = process.env.NODE_ENV === 'production' 
-        ? 'https://epiuse-assessment.vercel.app/api/employees' // Your deployed Vercel URL
-        : 'http://localhost:5000/api/employees'; // Local development URL
+      const baseURL = process.env.NODE_ENV === 'production'
+        ? 'https://epiuse-assessment.vercel.app/api/employees' 
+        : 'http://localhost:5000/api/employees'; 
 
       const { data } = await axios.get(baseURL);
       setEmployees(data);
@@ -30,16 +25,9 @@ const EmployeeList = () => {
     }
   };
 
-  const filterEmployees = () => {
-    const filtered = employees.filter((employee) =>
-      `${employee.name} ${employee.surname}`.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredEmployees(filtered);
-  };
-
   const deleteEmployee = async (id) => {
     try {
-      const baseURL = process.env.NODE_ENV === 'production' 
+      const baseURL = process.env.NODE_ENV === 'production'
         ? `https://epiuse-assessment.vercel.app/api/employees/${id}`
         : `http://localhost:5000/api/employees/${id}`;
 
@@ -50,6 +38,12 @@ const EmployeeList = () => {
     }
   };
 
+  const filteredEmployees = employees.filter(employee =>
+    employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    employee.surname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    employee.role.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Box>
       <Flex justify="space-between" align="center" mb={5}>
@@ -58,20 +52,16 @@ const EmployeeList = () => {
           Add Employee
         </Button>
       </Flex>
-      
-      {/* Search Bar */}
       <InputGroup mb={5}>
-        <InputLeftElement pointerEvents="none">
-          {/* Add a default icon or an emoji as a fallback */}
-          <SearchIcon color="gray.500" />
-        </InputLeftElement>
-        <Input 
-          placeholder="Search employees..." 
-          value={searchQuery} 
+        <Input
+          placeholder="Search employees"
+          value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
+        <InputRightElement>
+          <SearchIcon color="gray.500" />
+        </InputRightElement>
       </InputGroup>
-      
       <Divider mb={5} />
       <Stack spacing={4}>
         {filteredEmployees.length > 0 ? (
