@@ -9,7 +9,7 @@ import {
   Button,
   Box,
   Stack,
-  Select, // Added for dropdown
+  Select,
 } from '@chakra-ui/react';
 
 const EmployeeForm = () => {
@@ -24,10 +24,10 @@ const EmployeeForm = () => {
     manager_id: '',
     email: '',
   });
-  const [managers, setManagers] = useState([]); // State to hold manager options
+  const [managers, setManagers] = useState([]); 
 
   useEffect(() => {
-    fetchManagers(); // Fetch all managers for dropdown
+    fetchManagers(); 
     if (id) {
       fetchEmployeeDetails();
     }
@@ -40,7 +40,7 @@ const EmployeeForm = () => {
         : 'http://localhost:5000/api/employees';
 
       const { data } = await axios.get(baseURL);
-      setManagers(data); // Set the list of employees for the dropdown
+      setManagers(data);
     } catch (error) {
       console.log('Error fetching managers', error);
       toast({
@@ -56,19 +56,34 @@ const EmployeeForm = () => {
   const fetchEmployeeDetails = async () => {
     try {
       const baseURL = process.env.NODE_ENV === 'production'
-        ? `https://epiuse-assessment.vercel.app/api/employees/${id}`
-        : `http://localhost:5000/api/employees/${id}`;
-
+        ? `https://epiuse-assessment.vercel.app/api/employees?id=${id}`
+        : `http://localhost:5000/api/employees?id=${id}`;
+  
       const { data } = await axios.get(baseURL);
-      setFormData({
-        name: data.name || '',
-        surname: data.surname || '',
-        birth_date: data.birth_date || '',
-        salary: data.salary || '',
-        role: data.role || '',
-        manager_id: data.manager_id || '',
-        email: data.email || '',
-      });
+  
+      // Assuming the data comes back as an array, find the specific employee by ID
+      const employee = data.find(emp => emp.id === parseInt(id));
+  
+      if (employee) {
+        setFormData({
+          name: employee.name || '',
+          surname: employee.surname || '',
+          birth_date: employee.birth_date || '',
+          salary: employee.salary || '',
+          role: employee.role || '',
+          manager_id: employee.manager_id || '',
+          email: employee.email || '',
+        });
+      } else {
+        console.log('Employee not found');
+        toast({
+          title: 'Error',
+          description: 'Employee not found',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     } catch (error) {
       console.log('Error fetching employee details', error);
       toast({
@@ -80,7 +95,8 @@ const EmployeeForm = () => {
       });
     }
   };
-
+  
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -88,14 +104,15 @@ const EmployeeForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const baseURL = process.env.NODE_ENV === 'production'
-        ? `https://epiuse-assessment.vercel.app/api/employees/${id}`
-        : `http://localhost:5000/api/employees/${id}`;
-
+        ? `https://epiuse-assessment.vercel.app/api/employees`
+        : `http://localhost:5000/api/employees`;
+  
       if (id) {
-        await axios.put(baseURL, formData);
+        // Update existing employee by sending ID as a query parameter, not in the path
+        await axios.put(`${baseURL}${id}`, formData);
         toast({
           title: 'Employee updated.',
           description: `Employee ${formData.name} ${formData.surname} has been updated successfully.`,
@@ -104,7 +121,8 @@ const EmployeeForm = () => {
           isClosable: true,
         });
       } else {
-        await axios.post(baseURL.replace(`/${id}`, ''), formData);
+        // Add new employee
+        await axios.post(baseURL, formData);
         toast({
           title: 'Employee added.',
           description: `Employee ${formData.name} ${formData.surname} has been added successfully.`,
@@ -113,7 +131,8 @@ const EmployeeForm = () => {
           isClosable: true,
         });
       }
-
+  
+      // Clear the form
       setFormData({
         name: '',
         surname: '',
@@ -133,6 +152,7 @@ const EmployeeForm = () => {
       });
     }
   };
+  
 
   return (
     <Box width="400px" mx="auto" mt={10}>

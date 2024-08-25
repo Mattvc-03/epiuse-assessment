@@ -34,10 +34,10 @@ app.get('/api/employees', async (req, res) => {
   }
 });
 
-// Get a specific employee by ID
-app.get('/api/employees/:id', async (req, res) => {
+// Get a specific employee by ID directly in the URL path
+app.get('/api/employees:id', async (req, res) => {
   const { id } = req.params;
-  console.log(`Fetching employee with ID: ${id}`);  // Add this line for debugging
+  console.log(`Fetching employee with ID: ${id}`);
 
   try {
     const { data, error } = await supabase.from('employees').select('*').eq('id', id);
@@ -78,7 +78,7 @@ app.post('/api/employees', async (req, res) => {
 });
 
 // Update an employee
-app.put('/api/employees/:id', async (req, res) => {
+app.put('/api/employees:id', async (req, res) => {
   const { id } = req.params;
   const { name, surname, email, role, manager_id, birth_date, salary } = req.body;
 
@@ -100,7 +100,7 @@ app.put('/api/employees/:id', async (req, res) => {
 });
 
 // Delete an employee
-app.delete('/api/employees/:id', async (req, res) => {
+app.delete('/api/employees:id', async (req, res) => {
   const { id } = req.params;
   try {
     const { error } = await supabase.from('employees').delete().eq('id', id);

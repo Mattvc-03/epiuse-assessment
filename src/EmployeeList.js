@@ -3,7 +3,7 @@ import { Box, Button, Flex, Heading, Stack, Text, Badge, Divider, Input, InputGr
 import { Link } from 'react-router-dom';
 import { SearchIcon } from '@chakra-ui/icons';
 import axios from 'axios';
-import { useToast } from '@chakra-ui/react'; 
+import { useToast } from '@chakra-ui/react';
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
@@ -37,8 +37,8 @@ const EmployeeList = () => {
   const deleteEmployee = async (id) => {
     try {
       const baseURL = process.env.NODE_ENV === 'production' 
-        ? `https://epiuse-assessment.vercel.app/api/employees/${id}`
-        : `http://localhost:5000/api/employees/${id}`;
+        ? `https://epiuse-assessment.vercel.app/api/employees${id}`  // <-- Changed this line
+        : `http://localhost:5000/api/employees${id}`;  // <-- Changed this line
 
       await axios.delete(baseURL);
       setEmployees(employees.filter((employee) => employee.id !== id));
