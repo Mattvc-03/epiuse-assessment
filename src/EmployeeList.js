@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from './supabase';
 import { Box, Button, Flex, Heading, Stack, Text, Badge, Divider } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
@@ -11,17 +11,20 @@ const EmployeeList = () => {
   }, []);
 
   const fetchEmployees = async () => {
-    const { data, error } = await supabase.from('employees').select('*');
-    if (error) console.log('Error fetching employees', error);
-    else setEmployees(data);
+    try {
+      const { data } = await axios.get('http://localhost:5000/api/employees');
+      setEmployees(data);
+    } catch (error) {
+      console.log('Error fetching employees', error);
+    }
   };
 
   const deleteEmployee = async (id) => {
-    const { error } = await supabase.from('employees').delete().eq('id', id);
-    if (error) {
-      console.log('Error deleting employee', error);
-    } else {
+    try {
+      await axios.delete(`http://localhost:5000/api/employees/${id}`);
       setEmployees(employees.filter((employee) => employee.id !== id));
+    } catch (error) {
+      console.log('Error deleting employee', error);
     }
   };
 
