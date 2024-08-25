@@ -56,13 +56,14 @@ const EmployeeForm = () => {
   const fetchEmployeeDetails = async () => {
     try {
       const baseURL = process.env.NODE_ENV === 'production'
-        ? `https://epiuse-assessment.vercel.app/api/employees${id}`
-        : `http://localhost:5000/api/employees${id}`;
+        ? `https://epiuse-assessment.vercel.app/api/employees?id=${id}`
+        : `http://localhost:5000/api/employees?id=${id}`;
   
       const { data } = await axios.get(baseURL);
   
       // Assuming the data comes back as an array, find the specific employee by ID
-      const employee = data;
+      const employee = data.find(emp => emp.id === parseInt(id));
+  
       if (employee) {
         setFormData({
           name: employee.name || '',
@@ -102,53 +103,57 @@ const EmployeeForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    try {
-      const baseURL = process.env.NODE_ENV === 'production'
-        ? `https://epiuse-assessment.vercel.app/api/employees${id}`  // No slash before id
-        : `http://localhost:5000/api/employees${id}`;  // No slash before id
-  
-      if (id) {
-        await axios.put(baseURL, formData);
-        toast({
-          title: 'Employee updated.',
-          description: `Employee ${formData.name} ${formData.surname} has been updated successfully.`,
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
-      } else {
-        await axios.post(baseURL.replace(`${id}`, ''), formData);  // No slash before id
-        toast({
-          title: 'Employee added.',
-          description: `Employee ${formData.name} ${formData.surname} has been added successfully.`,
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-  
-      setFormData({
-        name: '',
-        surname: '',
-        birth_date: '',
-        salary: '',
-        role: '',
-        manager_id: '',
-        email: '',
-      });
-    } catch (error) {
+  e.preventDefault();
+
+  try {
+    const baseURL = process.env.NODE_ENV === 'production'
+      ? `https://epiuse-assessment.vercel.app/api/employees`
+      : `http://localhost:5000/api/employees`;
+
+    if (id) {
+      // Update existing employee by sending ID as a query parameter, not in the path
+      await axios.put(`${baseURL}?id=${id}`, formData);
       toast({
-        title: 'Error',
-        description: `Failed to ${id ? 'update' : 'add'} employee: ${error.message}`,
-        status: 'error',
+        title: 'Employee updated.',
+        description: `Employee ${formData.name} ${formData.surname} has been updated successfully.`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      // Add new employee
+      await axios.post(baseURL, formData);
+      toast({
+        title: 'Employee added.',
+        description: `Employee ${formData.name} ${formData.surname} has been added successfully.`,
+        status: 'success',
         duration: 5000,
         isClosable: true,
       });
     }
-  };
-  
+
+    // Clear the form
+    setFormData({
+      name: '',
+      surname: '',
+      birth_date: '',
+      salary: '',
+      role: '',
+      manager_id: '',
+      email: '',
+    });
+  } catch (error) {
+    toast({
+      title: 'Error',
+      description: `Failed to ${id ? 'update' : 'add'} employee: ${error.message}`,
+      status: 'error',
+      duration: 5000,
+      isClosable: true,
+    });
+  }
+};
+
+
   return (
     <Box width="400px" mx="auto" mt={10}>
       <form onSubmit={handleSubmit}>
