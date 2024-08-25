@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Flex, Heading, Stack, Text, Badge, Divider } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Stack, Text, Badge, Divider, Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { SearchIcon } from '@chakra-ui/icons'; // Ensure this import is correct
 
 const EmployeeList = () => {
   const [employees, setEmployees] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
 
   useEffect(() => {
     fetchEmployees();
   }, []);
 
+  useEffect(() => {
+    filterEmployees();
+  }, [searchQuery, employees]);
+
   const fetchEmployees = async () => {
     try {
-      // Determine the base URL dynamically based on the environment
       const baseURL = process.env.NODE_ENV === 'production' 
         ? 'https://epiuse-assessment.vercel.app/api/employees' // Your deployed Vercel URL
         : 'http://localhost:5000/api/employees'; // Local development URL
@@ -22,6 +28,13 @@ const EmployeeList = () => {
     } catch (error) {
       console.log('Error fetching employees', error);
     }
+  };
+
+  const filterEmployees = () => {
+    const filtered = employees.filter((employee) =>
+      `${employee.name} ${employee.surname}`.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredEmployees(filtered);
   };
 
   const deleteEmployee = async (id) => {
@@ -45,10 +58,24 @@ const EmployeeList = () => {
           Add Employee
         </Button>
       </Flex>
+      
+      {/* Search Bar */}
+      <InputGroup mb={5}>
+        <InputLeftElement pointerEvents="none">
+          {/* Add a default icon or an emoji as a fallback */}
+          <SearchIcon color="gray.500" />
+        </InputLeftElement>
+        <Input 
+          placeholder="Search employees..." 
+          value={searchQuery} 
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </InputGroup>
+      
       <Divider mb={5} />
       <Stack spacing={4}>
-        {employees.length > 0 ? (
-          employees.map((employee) => (
+        {filteredEmployees.length > 0 ? (
+          filteredEmployees.map((employee) => (
             <Box
               key={employee.id}
               p={4}

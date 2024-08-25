@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Tree, TreeNode } from 'react-organizational-chart';
 import { Box, Heading } from '@chakra-ui/react';
-import { supabase } from './supabase'; // Ensure this import is correct
+import Gravatar from 'react-gravatar';
+import axios from 'axios';
 
 const generateColor = () => {
   const letters = '0123456789ABCDEF';
@@ -18,17 +19,23 @@ const EmployeeHierarchy = () => {
 
   useEffect(() => {
     const fetchEmployees = async () => {
-      const { data, error } = await supabase.from('employees').select('*');
-      if (error) {
-        console.log('Error fetching employees', error);
-      } else {
+      try {
+        const baseURL = process.env.NODE_ENV === 'production'
+          ? 'https://epiuse-assessment.vercel.app/api/employees'
+          : 'http://localhost:5000/api/employees';
+
+        const { data } = await axios.get(baseURL);
         setEmployees(data);
+
         const colors = {};
         const roots = data.filter(emp => !emp.manager_id);
         roots.forEach(root => {
           colors[root.id] = generateColor();
         });
         setRootColors(colors);
+
+      } catch (error) {
+        console.log('Error fetching employees', error);
       }
     };
 
@@ -54,12 +61,9 @@ const EmployeeHierarchy = () => {
   };
 
   const renderTree = (node, parentColor) => {
-    // Use the parent's color if available, otherwise generate a new color for root nodes
     const nodeColor = parentColor || rootColors[node.id] || generateColor();
-  
-    // Determine if the node is a leaf node (no children)
     const isLeafNode = !node.children || node.children.length === 0;
-  
+
     return (
       <TreeNode
         key={node.id}
@@ -70,45 +74,43 @@ const EmployeeHierarchy = () => {
               padding: '10px',
               borderRadius: '8px',
               border: '1px solid black',
-              minWidth: '100px',
+              minWidth: '120px',
               textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
             }}
           >
+            <Gravatar 
+              email={node.email}
+              size={50}
+              style={{ borderRadius: '50%', marginBottom: '8px' }}
+            />
             ID: {node.id} <br /> {node.name} <br /> {node.role}
           </Box>
         }
-        lineWidth={isLeafNode ? '0px' : '2px'}  // Remove line for leaf nodes
-        lineColor={isLeafNode ? 'transparent' : 'blue'}  // Hide line color for leaf nodes
-        lineBorderRadius={isLeafNode ? '0px' : '10px'}  // No border radius for leaf nodes
-        style={{
-          borderBottom: isLeafNode ? 'none' : '',
-        }}  // Ensure no line is rendered for leaf nodes
-        connectors={isLeafNode ? [] : undefined}  // Ensure no connectors are rendered for leaf nodes
+        lineStyle={isLeafNode ? { visibility: 'hidden' } : {}} // Hide lines for leaf nodes
       >
         {!isLeafNode && 
-          node.children.map(child => renderTree(child, nodeColor))  // Pass the parent's color to children
+          node.children.map(child => renderTree(child, nodeColor))
         }
       </TreeNode>
     );
   };
-  
-  
-  
+
   const roots = buildTree(employees);
 
   return (
     <Box p={5}>
       <Heading>Employee Hierarchy</Heading>
       <Tree
-  lineWidth={'2px'}
-  lineColor={'blue'}
-  lineBorderRadius={'10px'}
-  label={<Box>EPIUSE</Box>}
->
-  {roots.map(root => renderTree(root))}
-</Tree>
-
-
+        lineWidth={'2px'}
+        lineColor={'blue'}
+        lineBorderRadius={'10px'}
+        label={<Box>EPIUSE</Box>}
+      >
+        {roots.map(root => renderTree(root))}
+      </Tree>
     </Box>
   );
 };

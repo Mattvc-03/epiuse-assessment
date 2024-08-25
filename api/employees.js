@@ -34,6 +34,28 @@ app.get('/api/employees', async (req, res) => {
   }
 });
 
+// Get a specific employee by ID
+app.get('/api/employees/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const { data, error } = await supabase.from('employees').select('*').eq('id', id);
+    if (error) {
+      console.error('Error fetching employee:', error);
+      return res.status(500).json({ error: 'Failed to fetch employee' });
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json({ error: 'Employee not found' });
+    }
+
+    res.status(200).json(data[0]); // Return the first matching employee
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    res.status(500).json({ error: 'Unexpected error occurred' });
+  }
+});
+
 // Add a new employee
 app.post('/api/employees', async (req, res) => {
   const { name, surname, email, role, manager_id } = req.body;
