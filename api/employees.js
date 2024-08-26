@@ -33,10 +33,9 @@ app.get('/api/employees', async (req, res) => {
     res.status(500).json({ error: 'Unexpected error occurred' });
   }
 });
-
-// Get a specific employee by ID directly in the URL path
-app.get('/api/employees:id', async (req, res) => {
-  const { id } = req.params;
+// Get a specific employee by ID
+app.get('/api/employees', async (req, res) => {
+  const { id } = req.query;
   console.log(`Fetching employee with ID: ${id}`);
 
   try {
@@ -78,14 +77,14 @@ app.post('/api/employees', async (req, res) => {
 });
 
 // Update an employee
-app.put('/api/employees:id', async (req, res) => {
-  const { id } = req.params;
+app.put('/api/employees', async (req, res) => {
+  const { id } = req.query;
   const { name, surname, email, role, manager_id, birth_date, salary } = req.body;
 
   try {
     const { data, error } = await supabase
       .from('employees')
-      .update({ name, surname, email, role, manager_id: manager_id || null, birth_date, salary })
+      .update({ name, surname, email, role, manager_id, birth_date, salary })
       .eq('id', id);
 
     if (error) {
@@ -100,8 +99,8 @@ app.put('/api/employees:id', async (req, res) => {
 });
 
 // Delete an employee
-app.delete('/api/employees:id', async (req, res) => {
-  const { id } = req.params;
+app.delete('/api/employees', async (req, res) => {
+  const { id } = req.query;
   try {
     const { error } = await supabase.from('employees').delete().eq('id', id);
 

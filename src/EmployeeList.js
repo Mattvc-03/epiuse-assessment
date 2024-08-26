@@ -36,9 +36,9 @@ const EmployeeList = () => {
 
   const deleteEmployee = async (id) => {
     try {
-      const baseURL = process.env.NODE_ENV === 'production' 
-        ? `https://epiuse-assessment.vercel.app/api/employees?id=${id}`  
-        : `http://localhost:5000/api/employees?id=${id}`; 
+      const baseURL = process.env.NODE_ENV === 'production'
+        ? `https://epiuse-assessment.vercel.app/api/employees?id=${id}`
+        : `http://localhost:5000/api/employees?id=${id}`;
   
       await axios.delete(baseURL);
       setEmployees(employees.filter((employee) => employee.id !== id));

@@ -107,12 +107,12 @@ const EmployeeForm = () => {
   
     try {
       const baseURL = process.env.NODE_ENV === 'production'
-        ? `https://epiuse-assessment.vercel.app/api/employees?id=${id}`
-        : `http://localhost:5000/api/employees?id=${id}`;
+        ? `https://epiuse-assessment.vercel.app/api/employees`
+        : `http://localhost:5000/api/employees`;
   
       if (id) {
-        // Update existing employee using the same URL structure as fetching details
-        await axios.put(baseURL, formData);
+        // Update existing employee by sending ID as a query parameter, not in the path
+        await axios.put(`${baseURL}?id=${id}`, formData);
         toast({
           title: 'Employee updated.',
           description: `Employee ${formData.name} ${formData.surname} has been updated successfully.`,
@@ -122,11 +122,7 @@ const EmployeeForm = () => {
         });
       } else {
         // Add new employee
-        const addURL = process.env.NODE_ENV === 'production'
-          ? `https://epiuse-assessment.vercel.app/api/employees`
-          : `http://localhost:5000/api/employees`;
-  
-        await axios.post(addURL, formData);
+        await axios.post(baseURL, formData);
         toast({
           title: 'Employee added.',
           description: `Employee ${formData.name} ${formData.surname} has been added successfully.`,
@@ -156,7 +152,6 @@ const EmployeeForm = () => {
       });
     }
   };
-  
 
 
   return (
