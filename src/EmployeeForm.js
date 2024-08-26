@@ -103,55 +103,60 @@ const EmployeeForm = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    const baseURL = process.env.NODE_ENV === 'production'
-      ? `https://epiuse-assessment.vercel.app/api/employees`
-      : `http://localhost:5000/api/employees`;
-
-    if (id) {
-      // Update existing employee by sending ID as a query parameter, not in the path
-      await axios.put(`${baseURL}?id=${id}`, formData);
-      toast({
-        title: 'Employee updated.',
-        description: `Employee ${formData.name} ${formData.surname} has been updated successfully.`,
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
+    e.preventDefault();
+  
+    try {
+      const baseURL = process.env.NODE_ENV === 'production'
+        ? `https://epiuse-assessment.vercel.app/api/employees?id=${id}`
+        : `http://localhost:5000/api/employees?id=${id}`;
+  
+      if (id) {
+        // Update existing employee using the same URL structure as fetching details
+        await axios.put(baseURL, formData);
+        toast({
+          title: 'Employee updated.',
+          description: `Employee ${formData.name} ${formData.surname} has been updated successfully.`,
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        // Add new employee
+        const addURL = process.env.NODE_ENV === 'production'
+          ? `https://epiuse-assessment.vercel.app/api/employees`
+          : `http://localhost:5000/api/employees`;
+  
+        await axios.post(addURL, formData);
+        toast({
+          title: 'Employee added.',
+          description: `Employee ${formData.name} ${formData.surname} has been added successfully.`,
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+  
+      // Clear the form
+      setFormData({
+        name: '',
+        surname: '',
+        birth_date: '',
+        salary: '',
+        role: '',
+        manager_id: '',
+        email: '',
       });
-    } else {
-      // Add new employee
-      await axios.post(baseURL, formData);
+    } catch (error) {
       toast({
-        title: 'Employee added.',
-        description: `Employee ${formData.name} ${formData.surname} has been added successfully.`,
-        status: 'success',
+        title: 'Error',
+        description: `Failed to ${id ? 'update' : 'add'} employee: ${error.message}`,
+        status: 'error',
         duration: 5000,
         isClosable: true,
       });
     }
-
-    // Clear the form
-    setFormData({
-      name: '',
-      surname: '',
-      birth_date: '',
-      salary: '',
-      role: '',
-      manager_id: '',
-      email: '',
-    });
-  } catch (error) {
-    toast({
-      title: 'Error',
-      description: `Failed to ${id ? 'update' : 'add'} employee: ${error.message}`,
-      status: 'error',
-      duration: 5000,
-      isClosable: true,
-    });
-  }
-};
+  };
+  
 
 
   return (

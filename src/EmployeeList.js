@@ -37,12 +37,12 @@ const EmployeeList = () => {
   const deleteEmployee = async (id) => {
     try {
       const baseURL = process.env.NODE_ENV === 'production' 
-        ? `https://epiuse-assessment.vercel.app/api/employees${id}`  // <-- Changed this line
-        : `http://localhost:5000/api/employees${id}`;  // <-- Changed this line
-
+        ? `https://epiuse-assessment.vercel.app/api/employees?id=${id}`  
+        : `http://localhost:5000/api/employees?id=${id}`; 
+  
       await axios.delete(baseURL);
       setEmployees(employees.filter((employee) => employee.id !== id));
-
+  
       toast({
         title: 'Employee deleted',
         description: `Employee with ID ${id} has been deleted successfully.`,
@@ -61,6 +61,7 @@ const EmployeeList = () => {
       });
     }
   };
+  
 
   const filteredEmployees = employees.filter(employee => 
     employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
