@@ -75,12 +75,12 @@ function App() {
           <Box
             flex={1}
             p={8}
-            ml="250px" // Adjust this margin to match the sidebar width
+            ml="250px"
             bg="white"
             borderRadius="lg"
             boxShadow="xl"
             overflowY="auto"
-            height="100vh" // Ensure that the content takes up the full viewport height
+            height="100vh"
           >
             <Routes>
               <Route path="/" element={<EmployeeList />} />

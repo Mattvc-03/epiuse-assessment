@@ -60,8 +60,6 @@ const EmployeeForm = () => {
         : `http://localhost:5000/api/employees?id=${id}`;
   
       const { data } = await axios.get(baseURL);
-  
-      // Assuming the data comes back as an array, find the specific employee by ID
       const employee = data.find(emp => emp.id === parseInt(id));
   
       if (employee) {
@@ -111,7 +109,6 @@ const EmployeeForm = () => {
         : `http://localhost:5000/api/employees`;
   
       if (id) {
-        // Update existing employee by sending ID as a query parameter, not in the path
         await axios.put(`${baseURL}?id=${id}`, formData);
         toast({
           title: 'Employee updated.',
@@ -121,7 +118,6 @@ const EmployeeForm = () => {
           isClosable: true,
         });
       } else {
-        // Add new employee
         await axios.post(baseURL, formData);
         toast({
           title: 'Employee added.',
@@ -131,8 +127,6 @@ const EmployeeForm = () => {
           isClosable: true,
         });
       }
-  
-      // Clear the form
       setFormData({
         name: '',
         surname: '',

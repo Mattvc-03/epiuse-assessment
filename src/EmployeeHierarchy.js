@@ -79,7 +79,7 @@ const EmployeeHierarchy = () => {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              color: 'white' // Set text color to white
+              color: 'white'
             }}
           >
             <Gravatar 
@@ -90,7 +90,7 @@ const EmployeeHierarchy = () => {
             ID: {node.id} <br /> {node.name} <br /> {node.role}
           </Box>
         }
-        lineStyle={isLeafNode ? { visibility: 'hidden' } : {}} // Hide lines for leaf nodes
+        lineStyle={isLeafNode ? { visibility: 'hidden' } : {}} 
       >
         {!isLeafNode && 
           node.children.map(child => renderTree(child, nodeColor))
