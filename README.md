@@ -21,8 +21,9 @@ This project is designed to provide an efficient solution for managing and organ
 - **Vercel**: Deployment platform for hosting the application.
 - **react-organizational-chart:**: For visualizing the employee hierarchy.
 - **Cors**: Middleware for enabling CORS in the Express.js server.
-  
 
+## More information
+For detailed instructions on how to use the application, including a comprehensive user manual, please refer to the "Documents" folder located in the project repository. The user manual provides step-by-step guidance on all features and functionalities of the application.
 ## Cloud Deployment
 The application is deployed on Vercel and can be accessed at:
 
