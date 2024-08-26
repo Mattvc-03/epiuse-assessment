@@ -109,6 +109,7 @@ const EmployeeForm = () => {
         : `http://localhost:5000/api/employees`;
   
       if (id) {
+        // Update existing employee by sending ID as a query parameter
         await axios.put(`${baseURL}?id=${id}`, formData);
         toast({
           title: 'Employee updated.',
@@ -118,6 +119,7 @@ const EmployeeForm = () => {
           isClosable: true,
         });
       } else {
+        // Add new employee
         await axios.post(baseURL, formData);
         toast({
           title: 'Employee added.',
@@ -127,6 +129,8 @@ const EmployeeForm = () => {
           isClosable: true,
         });
       }
+  
+      // Clear the form
       setFormData({
         name: '',
         surname: '',
@@ -137,6 +141,7 @@ const EmployeeForm = () => {
         email: '',
       });
     } catch (error) {
+      console.error('Error during update:', error); // Log error to see what's happening
       toast({
         title: 'Error',
         description: `Failed to ${id ? 'update' : 'add'} employee: ${error.message}`,
@@ -146,7 +151,7 @@ const EmployeeForm = () => {
       });
     }
   };
-
+  
 
   return (
     <Box width="400px" mx="auto" mt={10}>

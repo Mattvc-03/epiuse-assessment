@@ -78,7 +78,7 @@ app.post('/api/employees', async (req, res) => {
 
 // Update an employee
 app.put('/api/employees', async (req, res) => {
-  const { id } = req.query;
+  const { id } = req.query; // Ensure you're getting the `id` from the query
   const { name, surname, email, role, manager_id, birth_date, salary } = req.body;
 
   try {
@@ -91,12 +91,14 @@ app.put('/api/employees', async (req, res) => {
       console.error('Error updating employee:', error);
       return res.status(500).json({ error: error.message });
     }
+
     res.status(200).json(data);
   } catch (err) {
     console.error('Unexpected error:', err);
     res.status(500).json({ error: 'Unexpected error occurred' });
   }
 });
+
 
 // Delete an employee
 app.delete('/api/employees', async (req, res) => {
