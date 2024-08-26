@@ -81,6 +81,9 @@ app.put('/api/employees', async (req, res) => {
   const { id } = req.query; // Ensure you're getting the `id` from the query
   const { name, surname, email, role, manager_id, birth_date, salary } = req.body;
 
+  console.log(`Updating employee with ID: ${id}`); // Log the ID for debugging
+  console.log(`Received data:`, { name, surname, email, role, manager_id, birth_date, salary }); // Log received data
+
   try {
     const { data, error } = await supabase
       .from('employees')
@@ -98,6 +101,7 @@ app.put('/api/employees', async (req, res) => {
     res.status(500).json({ error: 'Unexpected error occurred' });
   }
 });
+
 
 
 // Delete an employee
