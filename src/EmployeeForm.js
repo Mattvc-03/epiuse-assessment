@@ -25,6 +25,7 @@ const EmployeeForm = () => {
     email: '',
   });
   const [managers, setManagers] = useState([]); 
+  const [currentEmployeeId, setCurrentEmployeeId] = useState(null); // Store current employee ID
 
   useEffect(() => {
     fetchManagers(); 
@@ -72,6 +73,7 @@ const EmployeeForm = () => {
           manager_id: employee.manager_id || '',
           email: employee.email || '',
         });
+        setCurrentEmployeeId(employee.id); // Set the current employee ID
       } else {
         console.log('Employee not found');
         toast({
@@ -94,7 +96,6 @@ const EmployeeForm = () => {
     }
   };
   
-  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -108,6 +109,18 @@ const EmployeeForm = () => {
         ...formData,
         manager_id: formData.manager_id === '' ? null : formData.manager_id
     };
+
+    // Check if the user is trying to set themselves as their own manager
+    if (currentEmployeeId && updatedFormData.manager_id === currentEmployeeId.toString()) {
+      toast({
+        title: 'Error',
+        description: 'You cannot set yourself as your own manager.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
 
     try {
         const baseURL = process.env.NODE_ENV === 'production'
@@ -154,7 +167,6 @@ const EmployeeForm = () => {
         });
     }
 };
-
 
   return (
     <Box width="400px" mx="auto" mt={10}>
